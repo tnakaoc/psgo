@@ -27,7 +27,7 @@ func main(){
 		fmt.Println(" ")
 		fmt.Println("\tP S C G O")
 		fmt.Println("\ta postscript like calculator")
-		fmt.Println("\tpowered by Go language")
+		fmt.Println("\twritten by Go language")
 		fmt.Println(" ")
 		fmt.Print("pscgo[",counter,"]>")
 	}
