@@ -8,6 +8,9 @@ type Psgo struct{
 	binary_func map[string]func(float64,float64)float64
 	macro map[string]string
 	stack []float64
+	rindex int
+	is_mac bool
+	sc_dep uint
 }
 func (p *Psgo)SetUnary(m map[string](func(float64)float64)){
 	p.unary_func=m
@@ -16,6 +19,7 @@ func (p *Psgo)SetBinary(m map[string]func(float64,float64)float64){
 	p.binary_func=m
 }
 func (p *Psgo)SetMacro(m map[string]string){
+	is_mac=false
 	p.macro=m
 }
 func (p *Psgo)is_unary(s string) bool{
@@ -33,6 +37,10 @@ func (p *Psgo)is_macro(s string) bool{
 func (p *Psgo) Parse(text string) bool{
 	if text=="exit"||text=="q" { return false }
 	ind := strings.Index(text,"%")
+	strings.Replace(text,"{","\t{\t",-1)
+	strings.Replace(text,"}","\t}\t",-1)
+	strings.Replace(text,"[","\t[\t",-1)
+	strings.Replace(text,"]","\t]\t",-1)
 	buf := strings.Fields(
 		func() string{
 			if ind!=-1 {
@@ -44,6 +52,9 @@ func (p *Psgo) Parse(text string) bool{
 	for _,val := range(buf) {
 		if val=="exit"||val=="q" {
 			return false
+		}
+		if val[0]=='/' {
+			is_mac=true
 		}
 		le:=len(p.stack)
 		if p.is_unary(val) {
@@ -63,11 +74,15 @@ func (p *Psgo) Parse(text string) bool{
 					if le != 0 {
 						fmt.Println("#index\tvalue")
 						for _i,_v := range(p.stack) {
-							fmt.Println(_i,"\t",_v)
+							fmt.Println(int(2*(float64(p.rindex)-0.5))*(le*p.rindex-_i),"\t",_v)
 						}
 					} else {
 						fmt.Println("stack is empty.")
 					}
+				case "rorder":
+					p.rindex=1
+				case "order":
+					p.rindex=0
 				case "clear":
 					p.stack=nil
 				case "pop":
@@ -94,6 +109,15 @@ func (p *Psgo) Parse(text string) bool{
 				case "dup":
 					if le>=1 {
 						p.stack=append(p.stack,p.stack[le-1])
+					}
+				case "index":
+					if le!=0 {
+						ind := int(p.stack[le-1])
+						if ind>0&&ind<le+1 {
+							p.stack[le-1]=p.stack[le-ind-1]
+						} else {
+							p.stack=p.stack[:le-1]
+						}
 					}
 				case "seq":
 					if le>=3 {

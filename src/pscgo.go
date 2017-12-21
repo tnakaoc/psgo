@@ -3,10 +3,7 @@ import "fmt"
 import "os"
 import "psgo"
 import "bufio"
-//import "strings"
 import "math"
-//import "math/rand"
-//import "strconv"
 func main(){
 	fnm,interactive := func()(string,bool){
 		if len(os.Args)==1 { return "/dev/stdin",true }
@@ -46,6 +43,8 @@ func main(){
 	}
 	macro := map[string]string{
 		"nop":"",
+		"inc":"1 add",
+		"dec":"1 sub",
 	}
 	var psgo psgo.Psgo
 	psgo.SetUnary(unifun)
